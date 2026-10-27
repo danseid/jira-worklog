@@ -1,0 +1,13 @@
+{%- if q.strip() %}
+<div class="matches">
+  {%- for key, summary in tickets %}
+  <button type="button" class="match" data-opens-dialog data-return-to="add-ticket" hx-target="#log-dialog"
+          hx-get="/dialog?key={{ key|urlencode }}&amp;date={{ today.isoformat() }}&amp;summary={{ summary|urlencode }}&amp;month={{ month }}">
+    <span class="key">{{ key }}</span>
+    <span class="ellipsis">{{ summary }}</span>
+  </button>
+  {%- else %}
+  <p class="muted">No ticket matches.</p>
+  {%- endfor %}
+</div>
+{%- endif %}

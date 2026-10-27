@@ -1,0 +1,61 @@
+{% import "dialog_parts.html" as parts %}
+<form id="log-form" class="dlg" hx-post="/worklog" hx-target="#grid-area" hx-swap="outerHTML"
+      hx-disabled-elt="find #dlg-submit">
+  <input type="hidden" name="key" value="{{ key }}">
+  <input type="hidden" name="summary" value="{{ summary }}">
+  <input type="hidden" name="month" value="{{ month }}">
+
+  <div class="dlg-head">
+    <h2 id="dlg-title">Log work</h2>
+    <button type="button" class="icon-btn" aria-label="Close" data-close>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+    </button>
+  </div>
+
+  <div class="dlg-body">
+    <div class="dlg-form">
+      <div class="ticket-box">
+        <span class="key">{{ key }}</span>
+        <span>{{ summary }}</span>
+      </div>
+
+      <div class="fields">
+        <div class="field">
+          <label for="dlg-date">Date</label>
+          <input id="dlg-date" name="date" type="date" value="{{ day_text }}" required
+                 hx-get="/dialog/panel" hx-include="#log-form" hx-target="#day-panel" hx-swap="outerHTML"
+                 hx-trigger="input changed delay:300ms" hx-sync="this:replace"
+                 aria-describedby="dlg-date-label">
+          {{ parts.date_label(day) }}
+        </div>
+        <div class="field">
+          <label for="dlg-time">Time spent</label>
+          <input id="dlg-time" name="time" autofocus autocomplete="off" placeholder="1:30 or 1.5" class="mono"
+                 hx-get="/dialog/panel" hx-include="#log-form" hx-target="#day-panel" hx-swap="outerHTML"
+                 hx-trigger="input changed delay:300ms" hx-sync="this:replace"
+                 aria-describedby="dlg-time-hint">
+          {{ parts.time_hint(hint, hint_error) }}
+        </div>
+      </div>
+
+      {{ parts.quick_buttons(quick) }}
+
+      <div class="field">
+        <label for="dlg-comment">Comment <span class="muted normal">(optional)</span></label>
+        <textarea id="dlg-comment" name="comment" rows="3" placeholder="What did you do?"></textarea>
+      </div>
+
+      <div id="dlg-error" aria-live="assertive"></div>
+    </div>
+
+    {% include "day_panel.html" %}
+  </div>
+
+  <div class="dlg-foot">
+    <span class="muted small">Adds a new worklog. Existing worklogs stay.</span>
+    <div class="actions">
+      <button type="button" class="btn" data-close>Cancel</button>
+      {{ parts.submit_button(can_add, new) }}
+    </div>
+  </div>
+</form>

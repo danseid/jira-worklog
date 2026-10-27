@@ -1,0 +1,14 @@
+# Local secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+
+# macOS
+.DS_Store

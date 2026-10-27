@@ -1,0 +1,3 @@
+{% include "grid.html" %}
+{% with oob = True %}{% include "totals.html" %}{% endwith %}
+<span id="status" role="status" hx-swap-oob="true">{{ status }}</span>

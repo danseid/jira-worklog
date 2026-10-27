@@ -1,0 +1,40 @@
+{% import "dialog_parts.html" as parts %}
+<section id="day-panel" class="day-panel" aria-label="Everything logged on this day">
+  <div class="dp-head">
+    <h3>{{ "%s, %d %s"|format(day.strftime("%A"), day.day, day.strftime("%B")) if day else "No day selected" }}</h3>
+    <span class="mono strong nowrap">{{ day_total|hmm }} / 8:00</span>
+  </div>
+  <div class="bar" aria-hidden="true">
+    <span class="old" style="width: {{ '%.3f'|format(old_pct) }}%"></span><span class="new" style="width: {{ '%.3f'|format(new_pct) }}%"></span>
+  </div>
+  <p class="after{{ ' over' if over }}">{{ after }}</p>
+  <div class="dp-list">
+    {%- if new %}
+    <div class="dp-row preview">
+      <span class="t">{{ new|hmm }}</span>
+      <span><span class="key">{{ key }}</span> · new worklog</span>
+    </div>
+    {%- endif %}
+    {%- for g in groups %}
+    <div class="dp-row{{ ' this' if g.key == key }}">
+      <span class="t">{{ g.seconds|hmm }}</span>
+      <div class="dp-text">
+        <span><span class="key">{{ g.key }}</span>{% if g.key == key %}<span class="muted"> · this ticket</span>{% endif %}</span>
+        <span class="ellipsis" title="{{ g.summary }}">{{ g.summary }}</span>
+        {%- if g.comments %}
+        <span class="muted">{{ g.comments|join(" · ") }}</span>
+        {%- endif %}
+      </div>
+    </div>
+    {%- endfor %}
+    {%- if not groups %}
+    <p class="muted small">Nothing logged on this day yet.</p>
+    {%- endif %}
+  </div>
+</section>
+{%- if oob %}
+{{ parts.date_label(day, oob=True) }}
+{{ parts.time_hint(hint, hint_error, oob=True) }}
+{{ parts.quick_buttons(quick, oob=True) }}
+{{ parts.submit_button(can_add, new, oob=True) }}
+{%- endif %}

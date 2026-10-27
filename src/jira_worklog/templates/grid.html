@@ -1,0 +1,59 @@
+{%- macro col_class(d) -%}
+{{ "today " if d == today }}{{ "we " if not is_workday(d) }}{{ "wk" if d.weekday() == 0 and d != m.days[0] }}
+{%- endmacro -%}
+{#- h:mm with a grey ":00", so that full hours read as one number. -#}
+{%- macro hm(s) -%}
+{%- set h, mm = (s|hmm).split(":") -%}
+{{ h }}<span class="{{ 'mm0' if mm == '00' else 'mm' }}">:{{ mm }}</span>
+{%- endmacro -%}
+<div id="grid-area" class="grid-scroll">
+<table class="grid" aria-label="Logged work per ticket and day" hx-target="#log-dialog">
+  <thead>
+    <tr>
+      <th scope="col" class="c-ticket">Ticket</th>
+      <th scope="col" class="c-sum">Σ</th>
+      {%- for d in m.days %}
+      <th scope="col" class="day {{ col_class(d) }}{{ ' future' if d > today }}"><span class="dn">{{ day_short[d.weekday()] }}</span><span class="dd">{{ "%02d"|format(d.day) }}</span></th>
+      {%- endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {%- for r in m.rows %}
+    <tr data-filter="{{ (r.key ~ ' ' ~ r.summary)|lower }}">
+      <th scope="row" class="c-ticket" title="{{ r.summary }}">
+        <a href="{{ issue_url(r.key) }}" target="_blank" rel="noopener">{{ r.key }}</a>
+        <span class="summary">{{ r.summary }}</span>
+      </th>
+      <td class="c-sum">{{ r.total|hmm }}</td>
+      {%- for d in m.days %}
+      {%- set s = r.seconds_on(d) %}
+      {%- set cid = cell_id(r.key, d) %}
+      <td class="{{ col_class(d) }}"><button type="button" id="{{ cid }}" class="cell{{ ' on' if s }}{{ ' flash' if flash == cid }}"
+        aria-label="Log work on {{ r.key }}, {{ d.strftime('%A') }} {{ d.day }} {{ d.strftime('%B') }}. Logged: {{ s|hmm if s else 'nothing' }}"
+        {%- if s %} title="{% for w in r.worklogs_on(d) %}{{ w.seconds|hmm }}{{ '  ' ~ w.comment if w.comment }}{{ '&#10;'|safe if not loop.last }}{% endfor %}"{% endif %}
+        hx-get="/dialog?key={{ r.key|urlencode }}&amp;date={{ d.isoformat() }}&amp;month={{ ym }}" data-opens-dialog>
+        {%- if s %}{{ hm(s) }}<span class="track" aria-hidden="true"><span class="fill" style="width: {{ '%.1f'|format(bar_percent(s)) }}%"></span></span>{% endif -%}
+      </button></td>
+      {%- endfor %}
+    </tr>
+    {%- endfor %}
+    {%- if not m.rows %}
+    <tr><td colspan="2" class="c-ticket empty">No work logged in this month.</td><td colspan="{{ m.days|length }}"></td></tr>
+    {%- endif %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <th scope="row" class="c-ticket total-label">Day total</th>
+      <td class="c-sum">{{ m.logged|hmm }}</td>
+      {%- for d in m.days %}
+      {%- set miss = m.missing_on(d) %}
+      {%- set total = m.day_total(d) %}
+      <td class="dsum {{ col_class(d) }} {{ 'short' if miss else ('ok' if m.counts(d) else '') }}"{% if miss %} title="{{ miss|hmm }} missing"{% endif %}>
+        {%- if total or miss %}<span>{{ total|hmm }}</span>{% endif %}
+        {%- if miss %}<span class="miss">−{{ miss|hmm }}</span>{% endif -%}
+      </td>
+      {%- endfor %}
+    </tr>
+  </tfoot>
+</table>
+</div>

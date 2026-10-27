@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logged work · {{ m.days[0].strftime("%B %Y") }}</title>
+<link rel="stylesheet" href="/static/worklog.css">
+<script src="/static/htmx.min.js"></script>
+<script src="/static/worklog.js" defer></script>
+</head>
+<body>
+<main class="wrap">
+
+<header class="top">
+  <h1>Logged work</h1>
+  <nav class="month-nav" aria-label="Month">
+    <a class="icon-btn" href="/month/{{ prev }}" aria-label="Previous month">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    </a>
+    <span class="month-name">{{ m.days[0].strftime("%B %Y") }}</span>
+    <a class="icon-btn" href="/month/{{ next }}" aria-label="Next month">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg>
+    </a>
+  </nav>
+  {% include "totals.html" %}
+  <span class="spacer"></span>
+  <label for="wl-filter" class="sr-only">Filter tickets</label>
+  <input id="wl-filter" type="search" placeholder="Filter tickets" autocomplete="off">
+  <a class="btn" href="/month/{{ ym }}/export.csv" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M5 21h14"></path></svg>
+    Export CSV
+  </a>
+</header>
+
+<div class="info">
+  <span class="muted">Click a cell to log work for that ticket and day. Hover a cell to see its worklogs.</span>
+  <span id="status" role="status"></span>
+</div>
+
+{% include "grid.html" %}
+
+<div class="add-ticket">
+  <button type="button" id="add-ticket" class="ghost-btn" aria-expanded="false" aria-controls="add-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+    Add ticket
+  </button>
+  <div id="add-box" hidden>
+    <label for="add-query" class="sr-only">Search ticket to add</label>
+    <input id="add-query" name="q" type="search" autocomplete="off" placeholder="Key or words, Esc to close"
+           hx-get="/tickets/search?month={{ ym }}" hx-trigger="input changed delay:300ms, search"
+           hx-target="#add-results" hx-sync="this:replace">
+    <div id="add-results"></div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><i class="sw bar" aria-hidden="true"></i>Bar = share of an 8 h day (half bar = 4 h)</span>
+  <span><i class="sw short" aria-hidden="true"></i><span class="short-ink">5:45</span>Day under 8 h, with the missing time below</span>
+  <span><i class="sw week" aria-hidden="true"></i>Week starts</span>
+</div>
+
+</main>
+
+<dialog id="log-dialog" aria-labelledby="dlg-title"></dialog>
+</body>
+</html>

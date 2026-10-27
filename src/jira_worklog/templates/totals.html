@@ -1,0 +1,5 @@
+<div id="totals" class="totals"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <span>Logged <strong>{{ m.logged|hmm }}</strong></span>
+  <span>Target until today <strong>{{ m.target|hmm }}</strong></span>
+  <span{% if m.missing > 0 %} class="missing"{% endif %}>Missing <strong>{{ m.missing|hmm }}</strong></span>
+</div>

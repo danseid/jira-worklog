@@ -1,0 +1,22 @@
+{#- Parts of the dialog that change with the date or the time. day_panel.html sends them again as out-of-band swaps. -#}
+{% macro oob_attr(oob) %}{% if oob %} hx-swap-oob="true"{% endif %}{% endmacro %}
+
+{% macro date_label(day, oob=False) -%}
+<span id="dlg-date-label" class="hint"{{ oob_attr(oob) }}>{{ day.strftime("%A") if day else "Pick a date" }}</span>
+{%- endmacro %}
+
+{% macro time_hint(hint, error, oob=False) -%}
+<span id="dlg-time-hint" class="hint{{ ' error' if error }}"{{ oob_attr(oob) }}>{{ hint }}</span>
+{%- endmacro %}
+
+{% macro quick_buttons(quick, oob=False) -%}
+<div id="dlg-quick" class="quick"{{ oob_attr(oob) }}>
+  {%- for label, value in quick %}
+  <button type="button" class="pill" data-quick="{{ value }}">{{ label }}</button>
+  {%- endfor %}
+</div>
+{%- endmacro %}
+
+{% macro submit_button(can_add, new, oob=False) -%}
+<button type="submit" id="dlg-submit" class="primary"{{ " disabled" if not can_add }}{{ oob_attr(oob) }}>{{ "Add " ~ (new|hmm) if can_add else "Add worklog" }}</button>
+{%- endmacro %}

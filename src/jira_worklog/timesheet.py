@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 WORKDAY_SECONDS = 8 * 3600
 BERLIN = ZoneInfo("Europe/Berlin")
 DAY_START = time(9, 0)
+DAY_SHORT = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 
 _HMM = re.compile(r"^(\d+):([0-5]\d)$")
 _DECIMAL = re.compile(r"^\d+(?:\.\d+)?$")

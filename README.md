@@ -67,6 +67,8 @@ The app reads the settings in this order. The first value found wins.
 - The target is 8 h per workday, Monday to Friday. The app does not know public holidays or leave.
 - The app listens on `127.0.0.1` only. The token stays in the app and never goes to the browser.
 - "Export CSV" downloads the worklogs of the month.
+- "Export PDF" downloads the same month as a landscape A4 sheet: one row per ticket, one column
+  per day, the day totals below.
 
 ## Limits
 

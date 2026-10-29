@@ -184,6 +184,15 @@ class TestWorklogApp(unittest.TestCase):
         self.assertIn('href="/month/2026-10/export.csv"', html)
         self.assertIn('href="/month/2026-10/export.pdf"', html)
 
+    def test_group_totals_in_the_grid_footer(self) -> None:
+        self.jira.worklogs.append(
+            Worklog("gcf-1", "GCF-12", "GCF ticket", date(2026, 10, 22), 2 * H, "")
+        )
+        html = self.client.get("/month/2026-10").text
+        self.assertIn("DEMO total", html)
+        self.assertIn("GCF total", html)
+        self.assertIn('<th scope="row" class="c-ticket group-label">GCF total</th>', html)
+
     def test_ticket_search(self) -> None:
         html = self.client.get("/tickets/search", params={"q": "pick"}).text
         self.assertIn("DEMO-1", html)

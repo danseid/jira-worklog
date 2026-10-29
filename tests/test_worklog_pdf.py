@@ -46,6 +46,10 @@ class TestPdfExport(unittest.TestCase):
         data = pdf_bytes(month([wl(22, "DEMO-67", 8, summary)]), "jdoe")
         self.assertNotIn(summary.encode("ascii"), data)
 
+    def test_group_rows_stay_on_the_same_page(self) -> None:
+        logs = [wl(1, "H2BNG-67", 8), wl(2, "H2BNG-975", 4), wl(3, "GCF-12", 2)]
+        self.assertEqual(pages(pdf_bytes(month(logs), "jdoe")), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

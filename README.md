@@ -69,6 +69,8 @@ The app reads the settings in this order. The first value found wins.
 - "Export CSV" downloads the worklogs of the month.
 - "Export PDF" downloads the same month as a landscape A4 sheet: one row per ticket, one column
   per day, the day totals below.
+- Under the day totals both views add the month per ticket group: the part of the key before the
+  dash, for example `H2BNG`. Tickets without a dash count as their own group.
 
 ## Limits
 

@@ -94,7 +94,12 @@ def _table(month: Month) -> Table:
         format_hmm(month.logged),
         *[_day_total_cell(month.day_total(d), month.missing_on(d), month.counts(d)) for d in days],
     ]
-    data: list[list[object]] = [header, *body, footer]
+    groups: list[list[object]] = [
+        [f"{group.group} total", format_hmm(group.seconds), *[""] * len(days)]
+        for group in month.group_totals
+    ]
+    data: list[list[object]] = [header, *body, footer, *groups]
+    footer_row = len(data) - 1 - len(groups)
 
     style: list[tuple] = [
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
@@ -106,28 +111,33 @@ def _table(month: Month) -> Table:
         ("ALIGN", (1, 0), (1, -1), "RIGHT"),
         ("ALIGN", (2, 0), (-1, -1), "CENTER"),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("FONTSIZE", (1, 1), (-1, -2), 5.2),
-        ("TEXTCOLOR", (1, 1), (-1, -2), INK),
+        ("FONTSIZE", (1, 1), (-1, footer_row - 1), 5.2),
+        ("TEXTCOLOR", (1, 1), (-1, footer_row - 1), INK),
         ("TOPPADDING", (0, 0), (-1, -1), 2.4),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 2.4),
         ("LEFTPADDING", (0, 0), (-1, -1), 1),
         ("RIGHTPADDING", (0, 0), (-1, -1), 1.5),
         ("INNERGRID", (0, 0), (-1, -1), 0.35, GRID_LINE),
         ("BOX", (0, 0), (-1, -1), 0.6, LINE),
-        ("BACKGROUND", (0, -1), (-1, -1), HEAD),
-        ("FONTNAME", (0, -1), (1, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, -1), (1, -1), 6.4),
-        ("TEXTCOLOR", (0, -1), (0, -1), MUTED),
-        ("LINEABOVE", (0, -1), (-1, -1), 0.6, WEEK_LINE),
+        # The day totals row, then one row per ticket group below it.
+        ("BACKGROUND", (0, footer_row), (-1, footer_row), HEAD),
+        ("FONTNAME", (0, footer_row), (1, footer_row), "Helvetica-Bold"),
+        ("FONTSIZE", (0, footer_row), (1, footer_row), 6.4),
+        ("TEXTCOLOR", (0, footer_row), (0, footer_row), MUTED),
+        ("LINEABOVE", (0, footer_row), (-1, footer_row), 0.6, WEEK_LINE),
+        ("FONTNAME", (0, footer_row + 1), (1, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, footer_row + 1), (1, -1), 5.8),
+        ("TEXTCOLOR", (0, footer_row + 1), (0, -1), MUTED),
+        ("ALIGN", (0, footer_row), (0, -1), "RIGHT"),
     ]
     for index, day in enumerate(days):
         column = index + 2
         if not is_workday(day):
-            style.append(("BACKGROUND", (column, 1), (column, -2), WEEKEND))
+            style.append(("BACKGROUND", (column, 1), (column, footer_row - 1), WEEKEND))
         if day == month.today:
-            style.append(("BACKGROUND", (column, 0), (column, -2), TODAY))
+            style.append(("BACKGROUND", (column, 0), (column, footer_row - 1), TODAY))
         if day.weekday() == 0 and index:
-            style.append(("LINEBEFORE", (column, 0), (column, -1), 0.6, WEEK_LINE))
+            style.append(("LINEBEFORE", (column, 0), (column, footer_row), 0.6, WEEK_LINE))
 
     table = Table(data, colWidths=[TICKET_W, TOTAL_W, *[day_w] * len(days)], repeatRows=1, style=style)
     if not month.rows:

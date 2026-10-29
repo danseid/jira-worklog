@@ -7,6 +7,7 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from jira_worklog.timesheet import (
+    GroupTotal,
     Worklog,
     added_message,
     bar_percent,
@@ -16,6 +17,7 @@ from jira_worklog.timesheet import (
     day_groups,
     format_hm,
     format_hmm,
+    group_of,
     new_worklog_start,
     parse_duration,
 )
@@ -192,6 +194,40 @@ class TestDayPanel(unittest.TestCase):
             added_message("DEMO-975", date(2026, 10, 22), 90 * 60, int(4.5 * H)),
             "Added 1:30 to DEMO-975 on Thursday 22 Oct. New total that day: 4:30.",
         )
+
+
+class TestGroupTotals(unittest.TestCase):
+    def test_group_of(self) -> None:
+        self.assertEqual(group_of("H2BNG-67"), "H2BNG")
+        self.assertEqual(group_of("h2bng-67"), "h2bng")
+        self.assertEqual(group_of("DEMO-1"), "DEMO")
+        self.assertEqual(group_of("MAINTENANCE"), "MAINTENANCE")
+        self.assertEqual(group_of("A-B-1"), "A")
+
+    def test_sums_each_group_biggest_first(self) -> None:
+        month = build_month(
+            [
+                wl(1, "H2BNG-67", 2),
+                wl(2, "H2BNG-67", 1.5),
+                wl(1, "H2BNG-975", 4),
+                wl(3, "GCF-12", 3),
+                wl(3, "MAINTENANCE", 0.5),
+            ],
+            2026,
+            10,
+            date(2026, 10, 29),
+        )
+        self.assertEqual(
+            month.group_totals,
+            [
+                GroupTotal("H2BNG", int(7.5 * H)),
+                GroupTotal("GCF", 3 * H),
+                GroupTotal("MAINTENANCE", 0.5 * H),
+            ],
+        )
+
+    def test_no_tickets_means_no_groups(self) -> None:
+        self.assertEqual(build_month([], 2026, 10, date(2026, 10, 29)).group_totals, [])
 
 
 class TestCsv(unittest.TestCase):

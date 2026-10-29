@@ -5,11 +5,17 @@ one column per day. Click a cell to add a worklog for that ticket and day.
 
 ## Start
 
-You need [uv](https://docs.astral.sh/uv/getting-started/installation/). Then run:
+You need [mise](https://mise.jdx.dev/). It installs Python and [uv](https://docs.astral.sh/uv/)
+in the versions that `mise.toml` pins. Then run:
 
 ```bash
-uvx --from git+https://github.com/danseid/jira-worklog jira-worklog
+git clone https://github.com/danseid/jira-worklog
+cd jira-worklog
+mise install
+mise run start
 ```
+
+`mise run start` installs the dependencies from `uv.lock` on first use and starts the app.
 
 On the first start the app asks for two values in the terminal:
 
@@ -20,6 +26,13 @@ On the first start the app asks for two values in the terminal:
 The app tests the values with Jira and saves them in `~/.config/jira-worklog/config.env`.
 Only you can read this file (mode 600). Then the app opens `http://127.0.0.1:8765/` in your
 browser. Stop it with Ctrl+C.
+
+Without mise, the same app runs straight from the repository with
+[uv](https://docs.astral.sh/uv/getting-started/installation/):
+
+```bash
+uvx --from git+https://github.com/danseid/jira-worklog jira-worklog
+```
 
 ## Options
 
@@ -64,10 +77,16 @@ The app reads the settings in this order. The first value found wins.
 
 ## Development
 
-```bash
-uv run pytest
-uv run jira-worklog
-```
+Everything is pinned in `mise.toml`: mise provides Python and uv, uv owns the dependencies in
+`uv.lock`.
+
+| Task | What it does |
+|---|---|
+| `mise run start` | Start the dashboard |
+| `mise run install` | Install the dependencies from `uv.lock` |
+| `mise run test` | Run the tests |
+| `mise run setup` | Ask for the URL and the token again |
+| `mise run upgrade` | Upgrade the dependencies within `pyproject.toml` |
 
 ## License
 

@@ -1,0 +1,32 @@
+# Pinned tooling. mise owns Python and uv, uv owns the dependencies in uv.lock.
+# Start with: mise install && mise run start
+
+[tools]
+python = "3.12.13"
+uv = "0.13.6"
+
+[env]
+# mise creates and activates .venv; uv uses it instead of making its own.
+_.python.venv = { path = ".venv", create = true }
+# Never let uv download a Python of its own: the interpreter comes from mise.
+UV_PYTHON_DOWNLOADS = "never"
+
+[tasks.install]
+description = "Install the dependencies from uv.lock"
+run = "uv sync --locked"
+
+[tasks.start]
+description = "Start the worklog dashboard on http://127.0.0.1:8765"
+run = "uv run --frozen jira-worklog"
+
+[tasks.test]
+description = "Run the tests"
+run = "uv run --frozen pytest -q"
+
+[tasks.setup]
+description = "Ask for the Jira URL and the token again"
+run = "uv run --frozen jira-worklog --setup"
+
+[tasks.upgrade]
+description = "Upgrade the dependencies within the limits of pyproject.toml"
+run = "uv lock --upgrade"

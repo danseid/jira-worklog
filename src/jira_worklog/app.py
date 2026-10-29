@@ -21,6 +21,7 @@ from fastapi.templating import Jinja2Templates
 from jira_worklog.jira_worklogs import JiraWriteError
 from jira_worklog.timesheet import (
     BERLIN,
+    DAY_SHORT,
     WORKDAY_SECONDS,
     Month,
     added_message,
@@ -35,11 +36,11 @@ from jira_worklog.timesheet import (
     new_worklog_start,
     parse_duration,
 )
+from jira_worklog.pdf_export import pdf_bytes
 
 HOST = "127.0.0.1"
 PORT = 8765
 HERE = Path(__file__).parent
-DAY_SHORT = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 QUICK_TIMES = ["15m", "30m", "1h", "2h", "4h"]
 TIME_ERROR = "Type a time like 1:30, 1.5 or 90m."
 
@@ -161,6 +162,17 @@ def create_app(jira: Any, today: Callable[[], date] = berlin_today) -> FastAPI:
         return Response(
             csv_bytes(load_month(year, month).worklogs),
             media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+
+    @app.get("/month/{ym}/export.pdf")
+    def export_pdf(ym: str) -> Response:
+        year, month = parse_month(ym)
+        user_name = current_user()
+        filename = f"worklogs-{user_name.split('@')[0]}-{ym}.pdf"
+        return Response(
+            pdf_bytes(load_month(year, month), user_name),
+            media_type="application/pdf",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
 

@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 WORKDAY_SECONDS = 8 * 3600
 BERLIN = ZoneInfo("Europe/Berlin")
 DAY_START = time(9, 0)
+DAY_SHORT = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 
 _HMM = re.compile(r"^(\d+):([0-5]\d)$")
 _DECIMAL = re.compile(r"^\d+(?:\.\d+)?$")
@@ -83,6 +84,17 @@ class Month:
     def missing(self) -> int:
         return sum(self.missing_on(d) for d in self.days)
 
+    @property
+    def group_totals(self) -> list[GroupTotal]:
+        """Hours per ticket group such as H2BNG, the biggest group first."""
+        seconds: dict[str, int] = defaultdict(int)
+        for row in self.rows:
+            seconds[group_of(row.key)] += row.total
+        return [
+            GroupTotal(group, total)
+            for group, total in sorted(seconds.items(), key=lambda item: (-item[1], item[0]))
+        ]
+
 
 @dataclass(frozen=True)
 class DayGroup:
@@ -90,6 +102,12 @@ class DayGroup:
     summary: str
     seconds: int
     comments: list[str]
+
+
+@dataclass(frozen=True)
+class GroupTotal:
+    group: str
+    seconds: int
 
 
 def parse_duration(text: str) -> int | None:
@@ -121,6 +139,12 @@ def format_hm(seconds: int) -> str:
 
 def is_workday(day: date) -> bool:
     return day.weekday() < 5
+
+
+def group_of(key: str) -> str:
+    """The project part of a ticket key: H2BNG-67 -> H2BNG. A key without a dash stays whole."""
+    head, sep, rest = key.partition("-")
+    return head if sep and rest else key
 
 
 def month_days(year: int, month: int) -> list[date]:

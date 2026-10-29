@@ -54,6 +54,13 @@
       </td>
       {%- endfor %}
     </tr>
+      {%- for g in m.group_totals %}
+    <tr class="group-row">
+      <th scope="row" class="c-ticket group-label">{{ g.group }} total</th>
+      <td class="c-sum">{{ g.seconds|hmm }}</td>
+      <td colspan="{{ m.days|length }}"></td>
+    </tr>
+      {%- endfor %}
   </tfoot>
 </table>
 </div>

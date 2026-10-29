@@ -139,6 +139,8 @@ input::placeholder, textarea::placeholder { color: #6B7280; }
 
 .grid tfoot th, .grid tfoot td { background: var(--head); border-bottom: 0; border-top: 2px solid var(--line); height: 48px; }
 .grid tfoot .total-label { text-align: right; font-weight: 600; }
+.grid tfoot .group-row th, .grid tfoot .group-row td { border-top: 0; height: 34px; }
+.grid tfoot .group-label { text-align: right; color: var(--muted); font-weight: 600; font-size: 12px; }
 .grid tfoot .c-sum { font-weight: 700; }
 .grid .dsum { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .grid .dsum span { display: block; }
